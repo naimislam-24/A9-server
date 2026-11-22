@@ -30,6 +30,7 @@ const connectedClient = await connectToMongoDB();
 const db = connectedClient.db("pizzahub");
 const usersvendorcollection = db.collection("usersvendor");
 const usersordercollection = db.collection("usersorder");
+const userscollection = db.collection("user");
 
 app.post("/usersvendor", async (req, res) => {
   try {
@@ -206,11 +207,41 @@ app.get("/usersvendor/approved", async (req, res) => {
   }
 });
 
+// Get All Users
+app.get("/users", async (req, res) => {
+  try {
+    const result = await userscollection.find().toArray();
+    res.send(result);
+  } catch (error) {
+    res.status(500).send({
+      message: "Failed to fetch users",
+    });
+  }
+});
+
+// Block / Unblock User
+app.patch("/users/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isBlocked } = req.body;
+    const result = await userscollection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: { isBlocked },
+      },
+    );
+    res.send(result);
+  } catch (error) {
+    res.status(500).send({
+      message: "Failed to update user",
+    });
+  }
+});
+
 // http://localhost:5000
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
-
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
 });
