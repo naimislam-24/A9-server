@@ -3,6 +3,7 @@ import cors from "cors";
 const PORT = 5000;
 import { MongoClient, ObjectId } from "mongodb";
 import "dotenv/config";
+import { jwtVerify, createRemoteJWKSet } from "jose";
 
 const app = express();
 // app.use(cors());
@@ -32,7 +33,28 @@ const usersvendorcollection = db.collection("usersvendor");
 const usersordercollection = db.collection("usersorder");
 const userscollection = db.collection("user");
 
-app.post("/usersvendor", async (req, res) => {
+const verifyToken = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).send({ msg: "Unauthorized!" });
+  }
+  const token = authHeader.split(" ")[1];
+  if (!token) {
+    return res.status(401).send({ msg: "Unauthorized!" });
+  }
+  const JWKS = createRemoteJWKSet(
+    new URL("http://localhost:3000/api/auth/jwks"),
+  );
+  try {
+    const { payload } = await jwtVerify(token, JWKS);
+    // payload ta vinno jaygay use korbo
+    next();
+  } catch (error) {
+    return res.status(500).send({ msg: "Server Error" });
+  }
+};
+
+app.post("/usersvendor", verifyToken, async (req, res) => {
   try {
     const menuData = req.body;
     const newMenuItem = {
@@ -60,7 +82,7 @@ app.get("/usersvendor", async (req, res) => {
   res.send(result);
 });
 
-app.patch("/usersvendor/:id", async (req, res) => {
+app.patch("/usersvendor/:id", verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
@@ -77,7 +99,7 @@ app.patch("/usersvendor/:id", async (req, res) => {
   }
 });
 
-app.delete("/usersvendor/:id", async (req, res) => {
+app.delete("/usersvendor/:id", verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     const result = await usersvendorcollection.deleteOne({
@@ -101,7 +123,7 @@ app.delete("/usersvendor/:id", async (req, res) => {
   }
 });
 
-app.get("/usersvendor/featured/:email", async (req, res) => {
+app.get("/usersvendor/featured/:email", verifyToken, async (req, res) => {
   try {
     const email = req.params.email;
     const result = await usersvendorcollection.find({ email: email }).toArray();
@@ -111,7 +133,7 @@ app.get("/usersvendor/featured/:email", async (req, res) => {
   }
 });
 
-app.post("/orders", async (req, res) => {
+app.post("/orders", verifyToken, async (req, res) => {
   try {
     const menuData = req.body;
     if (
@@ -139,7 +161,7 @@ app.post("/orders", async (req, res) => {
 });
 
 // Get All Orders
-app.get("/orders", async (req, res) => {
+app.get("/orders", verifyToken, async (req, res) => {
   try {
     const result = await usersordercollection.find().toArray();
     res.status(200).send(result);
@@ -151,7 +173,7 @@ app.get("/orders", async (req, res) => {
 });
 
 // user delete card
-app.delete("/orders/:id", async (req, res) => {
+app.delete("/orders/:id", verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     if (!ObjectId.isValid(id)) {
@@ -178,7 +200,7 @@ app.delete("/orders/:id", async (req, res) => {
   }
 });
 
-app.get("/orders/:productId", async (req, res) => {
+app.get("/orders/:productId", verifyToken, async (req, res) => {
   try {
     const productId = req.params.productId;
     const result = await usersordercollection
@@ -208,7 +230,7 @@ app.get("/usersvendor/approved", async (req, res) => {
 });
 
 // Get All Users
-app.get("/users", async (req, res) => {
+app.get("/users", verifyToken, async (req, res) => {
   try {
     const result = await userscollection.find().toArray();
     res.send(result);
@@ -220,7 +242,7 @@ app.get("/users", async (req, res) => {
 });
 
 // Block / Unblock User
-app.patch("/users/:id", async (req, res) => {
+app.patch("/users/:id", verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { isBlocked } = req.body;
