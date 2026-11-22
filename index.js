@@ -39,12 +39,34 @@ const usersordercollection = db.collection("usersorder");
 //   res.send(result);
 // });
 
+// app.post("/usersvendor", async (req, res) => {
+//   try {
+//     const menuData = req.body;
+//     const newMenuItem = {
+//       ...menuData,
+//       status: "Pending",
+//       createdAt: new Date(),
+//     };
+//     const result = await usersvendorcollection.insertOne(newMenuItem);
+//     res.status(201).send({
+//       success: true,
+//       message: "Menu item submitted for admin approval",
+//       insertedId: result.insertedId,
+//       status: newMenuItem.status,
+//     });
+//   } catch (error) {
+//     res.status(500).send({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// });
 app.post("/usersvendor", async (req, res) => {
   try {
     const menuData = req.body;
     const newMenuItem = {
       ...menuData,
-      status: "Pending",
+      approvalStatus: "Pending",
       createdAt: new Date(),
     };
     const result = await usersvendorcollection.insertOne(newMenuItem);
@@ -52,7 +74,7 @@ app.post("/usersvendor", async (req, res) => {
       success: true,
       message: "Menu item submitted for admin approval",
       insertedId: result.insertedId,
-      status: newMenuItem.status,
+      approvalStatus: newMenuItem.approvalStatus,
     });
   } catch (error) {
     res.status(500).send({
@@ -107,14 +129,6 @@ app.delete("/usersvendor/:id", async (req, res) => {
     });
   }
 });
-
-// Hello World
-
-// app.get("/usersvendor/featured/:email", async (req, res) => {
-//   const email = req.params.email;
-//   const result = await usersvendorcollection.find({ email: email }).toArray();
-//   res.send(result);
-// });
 
 app.get("/usersvendor/featured/:email", async (req, res) => {
   try {
@@ -221,6 +235,21 @@ app.patch("/usersvendor/:id", async (req, res) => {
   );
 
   res.send(result);
+});
+
+// Get Only Approved Menu Items
+app.get("/usersvendor/approved", async (req, res) => {
+  try {
+    const result = await usersvendorcollection
+      .find({ approvalStatus: "Approved" })
+      .toArray();
+
+    res.send(result);
+  } catch (error) {
+    res.status(500).send({
+      message: "Failed to fetch approved menu items",
+    });
+  }
 });
 
 // app.post("/orders", async (req, res) => {
