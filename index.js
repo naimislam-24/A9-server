@@ -221,21 +221,21 @@ app.get("/orders/:productId", async (req, res) => {
   }
 });
 
-app.patch("/usersvendor/:id", async (req, res) => {
-  const { id } = req.params;
-  const { approvalStatus } = req.body;
+// app.patch("/usersvendor/:id", async (req, res) => {
+//   const { id } = req.params;
+//   const { approvalStatus } = req.body;
 
-  const result = await usersvendorcollection.updateOne(
-    { _id: new ObjectId(id) },
-    {
-      $set: {
-        approvalStatus: approvalStatus,
-      },
-    },
-  );
+//   const result = await usersvendorcollection.updateOne(
+//     { _id: new ObjectId(id) },
+//     {
+//       $set: {
+//         approvalStatus: approvalStatus,
+//       },
+//     },
+//   );
 
-  res.send(result);
-});
+//   res.send(result);
+// });
 
 // Get Only Approved Menu Items
 app.get("/usersvendor/approved", async (req, res) => {
