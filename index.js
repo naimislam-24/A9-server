@@ -29,6 +29,7 @@ export async function connectToMongoDB() {
 const connectedClient = await connectToMongoDB();
 const db = connectedClient.db("pizzahub");
 const usersvendorcollection = db.collection("usersvendor");
+const usersordercollection = db.collection("usersorder");
 
 // Vendor
 // app.post("/usersvendor", async (req, res) => {
@@ -41,15 +42,12 @@ const usersvendorcollection = db.collection("usersvendor");
 app.post("/usersvendor", async (req, res) => {
   try {
     const menuData = req.body;
-
     const newMenuItem = {
       ...menuData,
       status: "Pending",
       createdAt: new Date(),
     };
-
     const result = await usersvendorcollection.insertOne(newMenuItem);
-
     res.status(201).send({
       success: true,
       message: "Menu item submitted for admin approval",
@@ -121,17 +119,84 @@ app.delete("/usersvendor/:id", async (req, res) => {
 app.get("/usersvendor/featured/:email", async (req, res) => {
   try {
     const email = req.params.email;
-    console.log(email);
-
     const result = await usersvendorcollection.find({ email: email }).toArray();
-
-    console.log(result);
-
     res.send(result);
   } catch (error) {
     res.status(500).send({ message: "Failed to fetch menu items" });
   }
 });
+
+app.post("/orders", async (req, res) => {
+  try {
+    const menuData = req.body;
+    if (
+      !menuData.productId ||
+      !menuData.itemName ||
+      !menuData.deliveryDate ||
+      !menuData.deliveryAddress
+    ) {
+      return res.status(400).send({
+        message: "Required fields are missing",
+      });
+    }
+    const result = await usersordercollection.insertOne(menuData);
+    res.status(201).send({
+      success: true,
+      message: "Order placed successfully",
+      result,
+    });
+  } catch (error) {
+    res.status(500).send({
+      success: false,
+      message: "Failed to place order",
+    });
+  }
+});
+
+// Get All Orders
+app.get("/orders", async (req, res) => {
+  try {
+    const result = await usersordercollection.find().toArray();
+    res.status(200).send(result);
+  } catch (error) {
+    res.status(500).send({
+      message: "Failed to fetch orders",
+    });
+  }
+});
+
+app.delete("/orders/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).send({
+        message: "Invalid order ID",
+      });
+    }
+    const result = await usersordercollection.deleteOne({
+      _id: new ObjectId(id),
+    });
+    if (result.deletedCount === 0) {
+      return res.status(404).send({
+        message: "Order not found",
+      });
+    }
+    res.status(200).send({
+      message: "Order deleted successfully",
+      result,
+    });
+  } catch (error) {
+    res.status(500).send({
+      message: "Failed to delete order",
+    });
+  }
+});
+
+// app.post("/orders", async (req, res) => {
+//   const menuData = req.body;
+//   const result = await usersordercollection.insertOne(menuData);
+//   res.send(result);
+// });
 
 // app.get("/usersvendor/featured", async (req, res) => {
 //   try {
