@@ -165,6 +165,7 @@ app.get("/orders", async (req, res) => {
   }
 });
 
+// user delete card
 app.delete("/orders/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -190,6 +191,36 @@ app.delete("/orders/:id", async (req, res) => {
       message: "Failed to delete order",
     });
   }
+});
+
+app.get("/orders/:productId", async (req, res) => {
+  try {
+    const productId = req.params.productId;
+    const result = await usersordercollection
+      .find({ productId: productId })
+      .toArray();
+    res.status(200).send(result);
+  } catch (error) {
+    res.status(500).send({
+      message: "Failed to fetch orders",
+    });
+  }
+});
+
+app.patch("/usersvendor/:id", async (req, res) => {
+  const { id } = req.params;
+  const { approvalStatus } = req.body;
+
+  const result = await usersvendorcollection.updateOne(
+    { _id: new ObjectId(id) },
+    {
+      $set: {
+        approvalStatus: approvalStatus,
+      },
+    },
+  );
+
+  res.send(result);
 });
 
 // app.post("/orders", async (req, res) => {
