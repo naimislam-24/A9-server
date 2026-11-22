@@ -31,36 +31,6 @@ const db = connectedClient.db("pizzahub");
 const usersvendorcollection = db.collection("usersvendor");
 const usersordercollection = db.collection("usersorder");
 
-// Vendor
-// app.post("/usersvendor", async (req, res) => {
-//   const menuData = req.body;
-//   //   console.log("Received Data:", menuData);
-//   const result = await usersvendorcollection.insertOne(menuData);
-//   res.send(result);
-// });
-
-// app.post("/usersvendor", async (req, res) => {
-//   try {
-//     const menuData = req.body;
-//     const newMenuItem = {
-//       ...menuData,
-//       status: "Pending",
-//       createdAt: new Date(),
-//     };
-//     const result = await usersvendorcollection.insertOne(newMenuItem);
-//     res.status(201).send({
-//       success: true,
-//       message: "Menu item submitted for admin approval",
-//       insertedId: result.insertedId,
-//       status: newMenuItem.status,
-//     });
-//   } catch (error) {
-//     res.status(500).send({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// });
 app.post("/usersvendor", async (req, res) => {
   try {
     const menuData = req.body;
@@ -221,22 +191,6 @@ app.get("/orders/:productId", async (req, res) => {
   }
 });
 
-// app.patch("/usersvendor/:id", async (req, res) => {
-//   const { id } = req.params;
-//   const { approvalStatus } = req.body;
-
-//   const result = await usersvendorcollection.updateOne(
-//     { _id: new ObjectId(id) },
-//     {
-//       $set: {
-//         approvalStatus: approvalStatus,
-//       },
-//     },
-//   );
-
-//   res.send(result);
-// });
-
 // Get Only Approved Menu Items
 app.get("/usersvendor/approved", async (req, res) => {
   try {
@@ -251,71 +205,6 @@ app.get("/usersvendor/approved", async (req, res) => {
     });
   }
 });
-
-// app.post("/orders", async (req, res) => {
-//   const menuData = req.body;
-//   const result = await usersordercollection.insertOne(menuData);
-//   res.send(result);
-// });
-
-// app.get("/usersvendor/featured", async (req, res) => {
-//   try {
-//     const today = new Date().toISOString().split("T")[0];
-
-//     const result = await usersvendorcollection
-//       .find({
-//         date: { $gte: today },
-//       })
-//       .sort({ date: 1 })
-//       .limit(6)
-//       .toArray();
-
-//     res.status(200).send(result);
-//   } catch (error) {
-//     res.status(500).send({
-//       message: "Failed to fetch upcoming featured items",
-//       error: error.message,
-//     });
-//   }
-// });
-
-// app.get("/usersvendor/featured", async (req, res) => {
-//   const today = new Date().toISOString().split("T")[0];
-
-//   const result = await usersvendorcollection
-//     .find({ date: { $gte: today } })
-//     .sort({ date: 1 })
-//     .limit(6)
-//     .toArray();
-
-//   res.send(result);
-// });
-
-// app.delete("/usersvendor/:id", async (req, res) => {
-//   const { id } = req.params;
-//   const result = await usersvendorcollection.deleteOne({
-//     _id: new ObjectId(id),
-//   });
-//   res.json(result);
-// });
-
-// app.get("/usersvendor", async (req, res) => {
-//   try {
-//     const email = req.query.email;
-
-//     const result = await menuItemsCollection
-//       .find({ vendorEmail: email })
-//       .sort({ createdAt: -1 })
-//       .limit(5)
-//       .toArray();
-
-//     res.send(result);
-//   } catch (error) {
-//     res.status(500).send({
-//       message: error.message,
-//     });
-//   }
-// });
 
 // http://localhost:5000
 app.get("/", (req, res) => {
