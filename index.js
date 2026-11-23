@@ -205,24 +205,10 @@ app.get("/users/:id/premium", async (req, res) => {
   res.send({
     success: true,
     result: {
-      premium:
-        doc?.premium === true || doc?.subscription?.plan === "premium",
+      premium: doc?.premium === true || doc?.subscription?.plan === "premium",
     },
   });
 });
-
-// *******************************************************
-// app.get("/usersvendor/count", async (req, res) => {
-//   try {
-//     const result = await usersvendorcollection.find().toArray();
-//     res.send(result);
-//   } catch (error) {
-//     res.status(500).send({
-//       message: "Failed to fetch menu item count",
-//     });
-//   }
-// });
-// Get Subscription API
 
 app.get("/subscription/:email", verifyToken, async (req, res) => {
   try {
