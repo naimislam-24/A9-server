@@ -59,7 +59,9 @@ const paymentscollection = db.collection("payments");
 // };
 
 const JWKS = createRemoteJWKSet(
-  new URL(process.env.AUTH_JWKS_URL || "http://localhost:3000/api/auth/jwks"),
+  new URL(
+    process.env.AUTH_JWKS_URL || `${process.env.CLIENT_URL}/api/auth/jwks`,
+  ),
 );
 const verifyToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -640,3 +642,5 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
 });
+
+export default app;
